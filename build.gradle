@@ -23,11 +23,14 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     // 데이터 베이스 클라이언트
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:3.3.3'
+
+    // 스프링 데이터 JPA
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.3.4'
 
     // 롬복
-    compileOnly 'org.project.lombok:lombok:1.18.30'
-    implementation 'org.projectlombok:lombok:1.18.30'
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
 }
 
 tasks.named('test') {
