@@ -32,7 +32,7 @@ public class OrderController {
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
 
-    @PostMapping("/api/orders/{id}")
+    @GetMapping("/api/orders/{id}")
     public ResponseEntity<?> read(HttpServletRequest request, @PathVariable Integer id) {
 
         // 로그인 회원 아이디
