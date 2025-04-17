@@ -28,6 +28,10 @@ public class Member {
     @CreationTimestamp
     private LocalDateTime created;
 
+    public Member() {
+
+    }
+
     public Member(String name, String loginId, String loginPw) {
         this.name = name;
         this.loginId = loginId;
