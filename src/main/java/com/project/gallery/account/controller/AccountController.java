@@ -7,6 +7,8 @@ import com.project.gallery.account.helper.AccountHelper;
 import com.project.gallery.block.service.BlockService;
 import com.project.gallery.common.util.HttpUtils;
 import com.project.gallery.common.util.TokenUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,11 +22,13 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1")
+@Tag(name = "Account", description = "승인(회원가입, 로그인, 토큰 관련")
 public class AccountController {
 
     private final AccountHelper accountHelper;
     private final BlockService blockService;
 
+    @Operation(summary = "회원가입", description = "회원가입 요청")
     @PostMapping("/api/account/join")
     public ResponseEntity<?> join(@RequestBody AccountJoinRequest joinReq) {
         if(!StringUtils.hasLength(joinReq.getName()) ||
@@ -35,6 +39,8 @@ public class AccountController {
         accountHelper.join(joinReq);
         return new  ResponseEntity<>(HttpStatus.OK);
     }
+
+    @Operation(summary = "로그인", description = "로그인 요청")
     @PostMapping("/api/account/login")
     public ResponseEntity<?> login(HttpServletRequest req, HttpServletResponse res, @RequestBody AccountLoginRequest loginReq) {
         if(!StringUtils.hasLength(loginReq.getLoginId()) || !StringUtils.hasLength(loginReq.getLoginPw())) {
@@ -49,16 +55,20 @@ public class AccountController {
         return new ResponseEntity<>(output, HttpStatus.OK);
     }
 
+    @Operation(summary = "유효성 체크")
     @GetMapping("/api/account/check")
     public ResponseEntity<?> check(HttpServletRequest req) {
         return new ResponseEntity<>(accountHelper.isLoggedIn(req), HttpStatus.OK);
     }
 
+    @Operation(summary = "로그아웃", description = "로그아웃 요청")
     @GetMapping("/api/account/logout")
     public ResponseEntity<?> logout(HttpServletRequest req, HttpServletResponse res) {
         accountHelper.logout(req, res);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+    
+    @Operation(summary = "토큰 재발급", description = "토큰 유효 기간 확인 후 액세트 토큰 재발급")
     @GetMapping("/api/account/token")
     public ResponseEntity<?> regenerate(HttpServletRequest request) {
         String refreshToken = HttpUtils.getCookieValue(request, AccountConstants.REFRESH_TOKEN_NAME);
