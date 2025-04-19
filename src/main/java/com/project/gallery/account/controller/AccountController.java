@@ -7,6 +7,7 @@ import com.project.gallery.account.helper.AccountHelper;
 import com.project.gallery.block.service.BlockService;
 import com.project.gallery.common.util.HttpUtils;
 import com.project.gallery.common.util.TokenUtils;
+import com.project.gallery.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,29 +28,34 @@ public class AccountController {
 
     private final AccountHelper accountHelper;
     private final BlockService blockService;
+    private final MemberService memberService;
 
     @Operation(summary = "회원가입", description = "회원가입 요청")
     @PostMapping("/api/account/join")
     public ResponseEntity<?> join(@RequestBody AccountJoinRequest joinReq) {
-        if(!StringUtils.hasLength(joinReq.getName()) ||
+        if (!StringUtils.hasLength(joinReq.getName()) ||
                 !StringUtils.hasLength(joinReq.getLoginId()) || !StringUtils.hasLength(joinReq.getLoginPw())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
+        if (memberService.find(joinReq.getLoginId()) != null) {
+            return new ResponseEntity<>("이미 존재하는 아이디입니다.", HttpStatus.CONFLICT);
+        }
+
         accountHelper.join(joinReq);
-        return new  ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Operation(summary = "로그인", description = "로그인 요청")
     @PostMapping("/api/account/login")
     public ResponseEntity<?> login(HttpServletRequest req, HttpServletResponse res, @RequestBody AccountLoginRequest loginReq) {
-        if(!StringUtils.hasLength(loginReq.getLoginId()) || !StringUtils.hasLength(loginReq.getLoginPw())) {
+        if (!StringUtils.hasLength(loginReq.getLoginId()) || !StringUtils.hasLength(loginReq.getLoginPw())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         String output = accountHelper.login(loginReq, req, res);
 
-        if(output == null) {
+        if (output == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(output, HttpStatus.OK);
@@ -67,7 +73,7 @@ public class AccountController {
         accountHelper.logout(req, res);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    
+
     @Operation(summary = "토큰 재발급", description = "토큰 유효 기간 확인 후 액세트 토큰 재발급")
     @GetMapping("/api/account/token")
     public ResponseEntity<?> regenerate(HttpServletRequest request) {

@@ -1,6 +1,7 @@
 package com.project.gallery.order.service;
 
 import com.project.gallery.cart.service.CartService;
+import com.project.gallery.common.util.EncryptionUtils;
 import com.project.gallery.item.dto.ItemRead;
 import com.project.gallery.item.service.ItemService;
 import com.project.gallery.order.dto.OrderRead;
@@ -77,6 +78,11 @@ public class BaseOrderService implements OrderService {
 
         // 주문 요청에 최종 결제 금액 입력
         orderRequest.setAmount(amount);
+        
+        // 결제 수단이 카드일 때 카드 번호 암호화
+        if ("card".equals(orderRequest.getPayment())) {
+            orderRequest.setCardNumber(EncryptionUtils.encrypt(orderRequest.getCardNumber()));
+        }
         
         // 주문 저정
         Order order = orderRepository.save(orderRequest.toEntity(memberId));

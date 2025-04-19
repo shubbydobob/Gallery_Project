@@ -17,11 +17,28 @@ const router = useRouter();
 
 //회원가입 데이터 제출
 const submit = async () => {
+
+  if (!state.form.name?.trim()) {
+    window.alert("이름을 입력해주세요.");
+    document.getElementById("name")?.focus();
+    return;
+  } else if (!state.form.loginId?.trim()) {
+    window.alert("이메일을 입력해주세요.");
+    document.getElementById("loginId")?.focus();
+    return;
+  } else if (!state.form.loginPw?.trim()) {
+    window.alert("패스워드를 입력해주세요.");
+    document.getElementById("loginPw")?.focus();
+    return;
+  }
   const res = await join(state.form);
 
   if (res.status === 200) {
     window.alert("회원가입을 완료했습니다.");
     await router.push("/");
+  } else if (res.status === 409) {
+    window.alert("이미 가입된 이메일입니다.");
+    document.getElementById("loginId")?.focus();
   }
 };
 </script>
