@@ -75,8 +75,8 @@ public class AccountController {
 
         // 리프레시 토큰이 없거나, 유효하지 않거나, 차단된 경우 401 반환
         if (!StringUtils.hasLength(refreshToken) ||
-                !TokenUtils.isTokenValid(refreshToken) ||
-                blockService.isTokenBlocked(refreshToken)) {
+                !TokenUtils.isValid(refreshToken) ||
+                blockService.has(refreshToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("토큰이 유효하지 않거나 존재하지 않습니다.");
         }
 

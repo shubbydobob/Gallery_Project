@@ -13,13 +13,13 @@ public class BaseBlockService implements BlockService {
     
     // 블록된 토큰 저장
     @Override
-    public void saveBlockToken(String token) {
+    public void add(String token) {
         blockRepository.save(new Block(token));
     }
 
     // 블록된 토큰 조회
     @Override
-    public boolean isTokenBlocked(String token) {
+    public boolean has(String token) {
         return blockRepository.findByToken(token).isPresent();
     }
 }

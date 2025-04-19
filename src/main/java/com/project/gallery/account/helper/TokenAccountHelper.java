@@ -36,7 +36,7 @@ public class TokenAccountHelper implements AccountHelper {
 
     // 회원 아이디 조회
     private Integer getMemberId(String token) {
-        if (TokenUtils.isTokenValid(token)) {
+        if (TokenUtils.isValid(token)) {
             Map<String, Object> tokenBody = TokenUtils.getBody(token);
             return (Integer) tokenBody.get(AccountConstants.MEMBER_ID_NAME);
         }
@@ -85,7 +85,7 @@ public class TokenAccountHelper implements AccountHelper {
     @Override
     public boolean isLoggedIn(HttpServletRequest request) {
 
-        if (TokenUtils.isTokenValid(getAccessToken(request))) {
+        if (TokenUtils.isValid((getAccessToken(request)))) {
             return true;
         }
 
@@ -93,7 +93,7 @@ public class TokenAccountHelper implements AccountHelper {
         String refreshToken = getRefreshToken(request);
 
         // 리프레시 토큰의 유효성 확인
-        return TokenUtils.isTokenValid(refreshToken) && !blockService.isTokenBlocked(refreshToken);
+        return TokenUtils.isValid(refreshToken) && !blockService.has(refreshToken);
     }
 
     // 로그아웃
@@ -107,9 +107,9 @@ public class TokenAccountHelper implements AccountHelper {
             // 리프레시 토큰 삭제
             HttpUtils.removeCookie(response, AccountConstants.REFRESH_TOKEN_NAME);
 
-            if (!blockService.isTokenBlocked(refreshToken)) {
+            if (!blockService.has(refreshToken)) {
                 // 블록된 토큰 저장
-                blockService.saveBlockToken(refreshToken);
+                blockService.add(refreshToken);
             }
         }
     }

@@ -49,8 +49,8 @@ public class HttpUtils {
     // 쿠키 삭제
     public static void removeCookie(HttpServletResponse response, String name) {
         Cookie cookie = new Cookie(name, null);
-        cookie.setMaxAge(0);
         cookie.setPath("/");
+        cookie.setMaxAge(0);
         response.addCookie(cookie);
     }
 

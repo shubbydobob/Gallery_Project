@@ -1,28 +1,25 @@
 package com.project.gallery.common.util;
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
 import org.springframework.util.StringUtils;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class TokenUtils {
 
-    private static final Key signKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);;
+    private static final Key signKey;
 
-
-//    static {
-//        //외부에 노출되면 안 되는 중요한 보안 키(32바이트 이상)
-//        String base64Key = "bXlfc3VwZXJfc2VjdXJlX2tleV9mb3Jfand0X3VzZQ=="; // 44자 base64 문자열 = 32바이트 원본
-//        byte[] secretKeyBytes = Base64.getDecoder().decode(base64Key);
-//        Key signKey = Keys.secretKeyFor(SignatureAlgorithm.HS256); // 안전한 256비트 이상 키 생성
-//    }
+    static {
+        //외부에 노출되면 안 되는 중요한 보안 키(32바이트 이상)
+        String secretKey = "SECURITY_KEY_202504192020581601_!!";
+        byte[] secretKeyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
+        signKey = new SecretKeySpec(secretKeyBytes, SignatureAlgorithm.HS256.getJcaName());
+    }
 
     // 토큰 발급
     public static String generate(String subject, String name, Object value, int expMinutes) {
@@ -46,14 +43,15 @@ public class TokenUtils {
         JwtBuilder builder = Jwts.builder()
                 .setHeader(headerMap)
                 .setSubject(subject)
-                .setClaims(claims)
                 .setExpiration(expTime)
+                .setClaims(claims)
                 .signWith(signKey, SignatureAlgorithm.HS256);
 
         return builder.compact();
     }
-    public static boolean isTokenValid(String token) {
-        if(StringUtils.hasLength(token)) {
+
+    public static boolean isValid(String token) {
+        if (StringUtils.hasLength(token)) {
             try {
                 Jwts.parserBuilder()
                         .setSigningKey(signKey)
