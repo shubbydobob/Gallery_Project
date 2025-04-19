@@ -17,7 +17,6 @@ public class APiInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-
         if(accountHelper.getMemberId(request) == null) {
             response.setStatus(401);
             return false;

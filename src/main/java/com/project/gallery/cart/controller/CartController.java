@@ -8,6 +8,8 @@ import com.project.gallery.cart.repository.CartRepository;
 import com.project.gallery.cart.service.CartService;
 import com.project.gallery.item.dto.ItemRead;
 import com.project.gallery.item.service.ItemService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,12 +22,14 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/v1")
 @RequiredArgsConstructor
+@Tag(name = "Cart", description = "장바구니 기능")
 public class CartController {
 
     private final CartService cartService;
     private final ItemService itemService;
     private final AccountHelper accountHelper;
 
+    @Operation(summary = "장바구니", description = "장바구니 목록 조회")
     @GetMapping("/api/cart/items")
     public ResponseEntity<?> readAll(HttpServletRequest request) {
 
@@ -41,7 +45,8 @@ public class CartController {
 
         return new ResponseEntity<>(items, HttpStatus.OK);
     }
-    
+
+    @Operation(summary = "장바구니", description = "장바구니에 담기")
     @PostMapping("/api/carts")
     public ResponseEntity<?> push(HttpServletRequest request, @RequestBody CartRequest cartRequest) {
         
@@ -58,7 +63,8 @@ public class CartController {
         
         return new ResponseEntity<>(cart, HttpStatus.OK);
     }
-    
+
+    @Operation(summary = "장바구니", description = "장바구니에 담긴 아이템 삭제")
     @DeleteMapping("/api/cart/items/{itemId}")
     public ResponseEntity<?> remove(HttpServletRequest request, @PathVariable("itemId") Integer itemId) {
         

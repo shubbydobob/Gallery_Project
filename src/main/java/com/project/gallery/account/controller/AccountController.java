@@ -22,7 +22,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1")
-@Tag(name = "Account", description = "승인(회원가입, 로그인, 토큰 관련")
+@Tag(name = "Account", description = "승인(회원가입, 로그인, 토큰 관련)")
 public class AccountController {
 
     private final AccountHelper accountHelper;
