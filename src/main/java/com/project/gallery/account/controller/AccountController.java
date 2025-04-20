@@ -28,7 +28,7 @@ public class AccountController {
 
     private final AccountHelper accountHelper;
     private final BlockService blockService;
-    private final MemberService memberService;
+//    private final MemberService memberService;
 
     @Operation(summary = "회원가입", description = "회원가입 요청")
     @PostMapping("/api/account/join")
@@ -38,9 +38,9 @@ public class AccountController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        if (memberService.find(joinReq.getLoginId()) != null) {
-            return new ResponseEntity<>("이미 존재하는 아이디입니다.", HttpStatus.CONFLICT);
-        }
+//        if (memberService.find(joinReq.getLoginId()) != null) {
+//            return new ResponseEntity<>("이미 존재하는 아이디입니다.", HttpStatus.CONFLICT);
+//        }
 
         accountHelper.join(joinReq);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -77,24 +77,41 @@ public class AccountController {
     @Operation(summary = "토큰 재발급", description = "토큰 유효 기간 확인 후 액세트 토큰 재발급")
     @GetMapping("/api/account/token")
     public ResponseEntity<?> regenerate(HttpServletRequest request) {
+//        String refreshToken = HttpUtils.getCookieValue(request, AccountConstants.REFRESH_TOKEN_NAME);
+//
+//        // 리프레시 토큰이 없거나, 유효하지 않거나, 차단된 경우 401 반환
+//        if (!StringUtils.hasLength(refreshToken) ||
+//                !TokenUtils.isValid(refreshToken) ||
+//                blockService.has(refreshToken)) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("토큰이 유효하지 않거나 존재하지 않습니다.");
+//        }
+//
+//        Map<String, Object> tokenBody = TokenUtils.getBody(refreshToken);
+//        Integer memberId = (Integer) tokenBody.get(AccountConstants.MEMBER_ID_NAME);
+//
+//        String accessToken = TokenUtils.generate(AccountConstants.ACCESS_TOKEN_NAME,
+//                AccountConstants.MEMBER_ID_NAME,
+//                memberId,
+//                AccountConstants.ACCESS_TOKEN_EXP_MINUTES);
+//
+//        return ResponseEntity.ok(accessToken);
+//    }
+        String accessToken = "";
         String refreshToken = HttpUtils.getCookieValue(request, AccountConstants.REFRESH_TOKEN_NAME);
 
-        // 리프레시 토큰이 없거나, 유효하지 않거나, 차단된 경우 401 반환
-        if (!StringUtils.hasLength(refreshToken) ||
-                !TokenUtils.isValid(refreshToken) ||
-                blockService.has(refreshToken)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("토큰이 유효하지 않거나 존재하지 않습니다.");
+        // 리프레시 토큰이 유효하다면
+        if (StringUtils.hasLength(refreshToken) && TokenUtils.isValid(refreshToken) && !blockService.has(refreshToken)) {
+            // 리프레시 토큰의 내부 값 조회
+            Map<String, Object> tokenBody = TokenUtils.getBody(refreshToken);
+
+            // 리프레시 토큰의 회원 아이디 조회
+            Integer memberId = (Integer) tokenBody.get(AccountConstants.MEMBER_ID_NAME);
+
+            // 액세스 토큰 발급
+            accessToken = TokenUtils.generate(AccountConstants.ACCESS_TOKEN_NAME, AccountConstants.MEMBER_ID_NAME, memberId, AccountConstants.ACCESS_TOKEN_EXP_MINUTES);
         }
 
-        Map<String, Object> tokenBody = TokenUtils.getBody(refreshToken);
-        Integer memberId = (Integer) tokenBody.get(AccountConstants.MEMBER_ID_NAME);
-
-        String accessToken = TokenUtils.generate(AccountConstants.ACCESS_TOKEN_NAME,
-                AccountConstants.MEMBER_ID_NAME,
-                memberId,
-                AccountConstants.ACCESS_TOKEN_EXP_MINUTES);
-
-        return ResponseEntity.ok(accessToken);
+        return new ResponseEntity<>(accessToken, HttpStatus.OK);
     }
 
 }

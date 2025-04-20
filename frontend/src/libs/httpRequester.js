@@ -16,6 +16,7 @@ instance.interceptors.response.use((response) => {
         case 401:
             // 권한 없음
             const config = error.config;
+
             if (config.retried) {
                 window.alert("권한이 없습니다.");
                 window.location.replace("/");
@@ -44,7 +45,6 @@ instance.interceptors.response.use((response) => {
 
             // 중복 재요청 방지를 위한 프로퍼티 추가
             config.retried = true;
-jj
             // 재요청
             return instance(config);
 

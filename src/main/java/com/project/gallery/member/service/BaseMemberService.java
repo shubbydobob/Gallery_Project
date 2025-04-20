@@ -27,11 +27,6 @@ public class BaseMemberService implements MemberService {
         memberRepository.save(new Member(name, loginId, loginPwSalted, loginPwSalt));
     }
 
-    @Override
-    public Member find(String loginId) {
-        return memberRepository.findByLoginId(loginId).orElse(null);
-    }
-
     // 회원 데이터 조회
     @Override
     public Member find(String loginId, String loginPw) {
@@ -53,5 +48,10 @@ public class BaseMemberService implements MemberService {
         }
 
        return null;
+    }
+
+    @Override
+    public Member find(String loginId) {
+        return memberRepository.findByLoginId(loginId).orElse(null);
     }
 }

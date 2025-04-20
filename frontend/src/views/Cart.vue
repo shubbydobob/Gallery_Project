@@ -8,27 +8,27 @@ const state = reactive({
 });
 
 // 장바구니 상품 조회
-const load = async () => {
-  const res = await getItems();
+  const load = async () => {
+    const res = await getItems();
 
-  if(res.status === 200) {
-    state.items = res.data;
+    if (res.status === 200) {
+      state.items = res.data;
+    }
   }
-}
 
 // 장바구니 상품 삭제
-const remove = async (itemId) => {
-  const res = await removeItem(itemId);
+  const remove = async (itemId) => {
+    const res = await removeItem(itemId);
 
-  if(res.status === 200) {
-    window.alert("선택하신 장바구니의 상품을 삭제했습니다.");
-    await load();
-  }
-}
+    if (res.status === 200) {
+      window.alert("선택하신 장바구니의 상품을 삭제했습니다.");
+      await load();
+    }
+};
 
 // 커스텀 생성 훅
-(async  function onCreated() {
-  await  load();
+(async function onCreated() {
+  await load();
 })();
 </script>
 
@@ -38,7 +38,7 @@ const remove = async (itemId) => {
       <template v-if="state.items.length">
         <ul class="items">
           <li v-for="i in state.items">
-            <img :alt="`상품 사진(${i.name})`" :src="i.imgPath" />
+            <img :alt="`상품 사진(${i.name})`" :src="i.imgPath"/>
             <b class="name">{{ i.name }}</b>
             <span class="price">
               {{ (i.price - i.price * i.discountPer / 100).toLocaleString() }}원

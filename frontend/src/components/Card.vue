@@ -1,6 +1,7 @@
 <script setup>
 import {addItem} from "@/services/cartService.js";
 import {useRouter} from "vue-router";
+import {useAccountStore} from "@/stores/account.js";
 import {computed} from "vue";
 
 // 프로퍼티 객체
@@ -23,13 +24,25 @@ const computedItemDiscountPrice = computed(() => {
 // 라우터 객체
 const router = useRouter();
 
+// 계정 스토어
+const accountStore = useAccountStore();
+
 // 장바구니에 상품 담기
 const put = async () => {
-  const res = await addItem(props.item.id);
 
-  if(res.status === 200 && window.confirm('장바구니에 상품을 담았습니다. 장바구니로 이동하시겠습니까?')) {
-    await router.push("/cart");
+  if (!accountStore.loggedIn) {
+    if (window.confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")) {
+      await router.push("/login");
     }
+    return;
+  }
+  try {
+    const res = await addItem(props.item.id);
+    window.alert("장바구니에 상품을 담았습니다.");
+  } catch (e) {
+    console.error(e);
+    window.alert("장바구니에 상품을 담는 데 실패했습니다.");
+  }
 };
 </script>
 
