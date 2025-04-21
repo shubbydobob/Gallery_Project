@@ -12,22 +12,21 @@ import java.util.Map;
 
 public class TokenUtils {
 
-    private static final Key signKey;
+    private static final Key signKey; // ①
 
-    static {
-        //외부에 노출되면 안 되는 중요한 보안 키(32바이트 이상)
-        String secretKey = "SECURITY_KEY_202504192020581601_!!";
+    static { // ②
+        // 외부에 노출되면 안 되는 중요한 보안 키(32바이트 이상)
+        String secretKey = "SECURITY_KEY_2023042319572107_!!";
         byte[] secretKeyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
         signKey = new SecretKeySpec(secretKeyBytes, SignatureAlgorithm.HS256.getJcaName());
     }
 
     // 토큰 발급
-    public static String generate(String subject, String name, Object value, int expMinutes) {
-
+    public static String generate(String subject, String name, Object value, int expMinutes) { // ③
         // 만료 시간 설정
         Date expTime = new Date();
 
-        // 분(minute)을 밀리초(milliseconds)로 변환해 입력
+        // 분(minute)을 밀리초(millisecond)로 변환해 입력
         expTime.setTime(expTime.getTime() + 1000L * 60 * expMinutes);
 
         // 기본 정보 입력
@@ -44,33 +43,28 @@ public class TokenUtils {
                 .setHeader(headerMap)
                 .setSubject(subject)
                 .setExpiration(expTime)
-                .setClaims(claims)
+                .addClaims(claims)
                 .signWith(signKey, SignatureAlgorithm.HS256);
 
         return builder.compact();
     }
 
-    public static boolean isValid(String token) {
+    public static boolean isValid(String token) { // ④
+        // 토큰 값이 있다면
         if (StringUtils.hasLength(token)) {
             try {
-                Jwts.parserBuilder()
-                        .setSigningKey(signKey)
-                        .build()
-                        .parseClaimsJws(token);
+                Jwts.parserBuilder().setSigningKey(signKey).build().parseClaimsJws(token);
                 return true;
-            } catch (ExpiredJwtException e) {
-            } catch (JwtException e) { // 토큰 유효성 검사 실패
+            } catch (ExpiredJwtException e) { // 만료됨
+            } catch (JwtException e) { // 유효하지 않음
             }
         }
+
         return false;
     }
 
-    // 토큰에서 클레임 정보 추출
-    public static Map<String, Object> getBody(String token) {
-       return Jwts.parserBuilder()
-                .setSigningKey(signKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+    // 토큰 값 추출
+    public static Map<String, Object> getBody(String token) { // ⑤
+        return Jwts.parserBuilder().setSigningKey(signKey).build().parseClaimsJws(token).getBody();
     }
 }

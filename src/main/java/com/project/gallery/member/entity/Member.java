@@ -21,7 +21,7 @@ public class Member {
     @Column(length = 50, nullable = false, unique = true)
     private String loginId;
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 64, nullable = false)
     private String loginPw;
 
     @Column(length = 16, nullable = false)
@@ -31,8 +31,7 @@ public class Member {
     @CreationTimestamp
     private LocalDateTime created;
 
-    public Member() {
-
+    public Member(){
     }
 
     public Member(String name, String loginId, String loginPw, String loginPwSalt) {

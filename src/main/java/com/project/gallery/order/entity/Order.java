@@ -16,23 +16,29 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false)
     private Integer memberId;
 
+    @Column(length = 50, nullable = false)
     private String name;
 
+    @Column(length = 500, nullable = false)
     private String address;
 
+    @Column(length = 10, nullable = false)
     private String payment;
 
+    @Column(length = 50)
     private String cardNumber;
 
+    @Column(nullable = false)
     private Long amount;
 
+    @Column(nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime created;
 
     public Order() {
-
     }
 
     public Order(Integer memberId, String name, String address, String payment, String cardNumber, Long amount) {

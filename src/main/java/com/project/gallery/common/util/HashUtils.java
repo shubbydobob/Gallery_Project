@@ -3,28 +3,30 @@ package com.project.gallery.common.util;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.Random;
+import java.util.Base64;
 
 public class HashUtils {
 
-    public static String generateSalt(int size) {
+    // 솔트 생성
+    public static String generateSalt(int size) { // ①
         char[] resultArr = new char[size];
         Random random = new Random();
 
-        String options = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz" +
-                "0123456789" + "!@#$%^&*()_+";
+        // 랜덤한 문자열을 만들기 위한 문자열
+        String options = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz" + "1234567890" + "!@#$%^&*()";
 
-        for (int i = 0; i < resultArr.length; i+= 1) {
+        for (int i = 0; i < resultArr.length; i += 1) {
             resultArr[i] = options.charAt(random.nextInt(options.length()));
         }
+
         return new String(resultArr);
     }
-    
+
     // 해시 데이터 생성
-    public static String generateHash(String value, String salt) {
+    public static String generateHash(String value, String salt) { // ②
         try {
-            // SHA-256 해시 알고리즘을 사용하여 해시값 생성
+            // SHA-256 알고리즘 사용
             MessageDigest md = MessageDigest.getInstance("SHA-256");
 
             // 원본 값과 솔트 합치기
@@ -36,8 +38,7 @@ public class HashUtils {
             // 바이트 배열을 Base64로 인코딩해서 반환
             return Base64.getEncoder().encodeToString(hashBytes);
         } catch (NoSuchAlgorithmException ex) {
-            // SHA-256 알고리즘을 찾을 수 없는 경우 예외 처리
-            throw new RuntimeException("SHA-256 algorithm not found", ex);
+            throw new RuntimeException("해싱 중 오류가 발생했습니다.");
         }
     }
 }

@@ -1,12 +1,12 @@
 <script setup>
-import {useAccountStore} from "@/stores/account.js";
-import {logout} from "@/services/accountService.js";
+import {useAccountStore} from "@/stores/account";
+import {logout} from "@/services/accountService";
 import {useRouter} from "vue-router";
 
-//계정 스토어
+// 계정 스토어
 const accountStore = useAccountStore();
 
-//라우터 객체
+// 라우터 객체
 const router = useRouter();
 
 // 로그아웃
@@ -14,7 +14,7 @@ const logoutAccount = async () => {
   const res = await logout();
 
   if (res.status === 200) {
-    accountStore.setAccessToken("");
+    accountStore.setAccessToken(""); // ①
     accountStore.setLoggedIn(false);
     await router.push("/");
   }

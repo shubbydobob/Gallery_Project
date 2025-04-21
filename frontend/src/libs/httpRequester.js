@@ -1,86 +1,82 @@
 import axios from "axios";
-import {useAccountStore} from "@/stores/account.js";
+import {useAccountStore} from "@/stores/account"; // ①
 
 const instance = axios.create();
 
-// 인터센터 (응답 시)
-instance.interceptors.response.use((response) => {
-    return response;
-}, async (error) => {
-    switch (error.response.status) {
+// 인터셉터(응답 시)
+instance.interceptors.response.use((res) => {
+    return res;
+}, async (err) => {
+    switch (err.response.status) {
         case 400:
-            // 잘못된 요청
-            window.alert("Something went wrong!");
+            window.alert("잘못된 요청입니다.");
             break;
 
-        case 401:
-            // 권한 없음
-            const config = error.config;
+        case 401: // ②
+            const config = err.config;
 
-            if (config.retried) {
+            if (config.retried) { // 재요청 여부
                 window.alert("권한이 없습니다.");
                 window.location.replace("/");
                 return;
             }
-            // 쿠키에 있는 리프레시 토큰으로 액세스 토큰 요청
+
+            // (쿠키에 있는) 리프레시 토큰으로 액세스 토큰 요청
             const res = await axios.get("/v1/api/account/token");
 
+            // 액세스 토큰
             const accessToken = res.data;
 
-            if (!accessToken) {
-                // 새 토큰이 빈 문자열이면 로그인 실패 처리
-                window.alert("자동 로그인 실패. 다시 로그인 해주세요.");
-                window.location.replace("/login");
-                return Promise.reject(); // 요청 중단
-            }
-
-
+            // 계정 스토어
             const accountStore = useAccountStore();
 
-            // 계정 스토어의 엑세스 토큰 변경
+            // 계정 스토어의 액세스 토큰 변경
             accountStore.setAccessToken(accessToken);
 
-            // 요청 엑세스 토큰 교체
+            // 요청 액세스 토큰 교체
             config.headers.authorization = `Bearer ${accountStore.accessToken}`;
 
             // 중복 재요청 방지를 위한 프로퍼티 추가
             config.retried = true;
+
             // 재요청
             return instance(config);
 
-        // 오류 발생
         case 500:
-            window.alert("알 수 없는 오류가 발생했습니다.");
+            window.alert("오류가 있습니다. 관리자에게 문의해주세요.");
             break;
     }
-    return Promise.reject(error);
+
+    return Promise.reject(err);
 });
 
 // HTTP 요청 설정 생성
-const generateConfig = () => {
+const generateConfig = () => { // ③
+    // 계정 스토어
     const accountStore = useAccountStore();
 
     if (accountStore.accessToken) {
         return {
-            headers: {authorization: `Bearer ${accountStore.accessToken}`},
+            headers: {authorization: `Bearer ${accountStore.accessToken}`}
         };
     }
+
     return {};
 };
 
 export default {
-    get(url, params) {
+    get(url, params) { // ④
         const config = generateConfig();
         config.params = params;
         return instance.get(url, config);
     },
-    post(url, params) {
+    post(url, params) { // ⑤
         return instance.post(url, params, generateConfig());
     },
-    put(url, params) {
+    put(url, params) { // ⑥
         return instance.put(url, params, generateConfig());
     },
-    delete(url) {
+    delete(url) { // ⑦
         return instance.delete(url, generateConfig());
     },
 };

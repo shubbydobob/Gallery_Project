@@ -5,6 +5,7 @@ import {useAccountStore} from "@/stores/account";
 import {watch} from "vue";
 import {useRoute} from "vue-router";
 import {check} from "@/services/accountService";
+import {onMounted} from "vue";
 
 
 // 계정 스토어

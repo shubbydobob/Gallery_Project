@@ -6,25 +6,26 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Getter
-@Table(name = "blocks")
+@Getter // ①
+@Entity // ②
+@Table(name = "blocks") // ③
 public class Block {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer id; // ④
 
-    private String token;
+    @Column(length = 250, nullable = false)
+    private String token; // ⑤
 
+    @Column(nullable = false, updatable = false)
     @CreationTimestamp
-    private LocalDateTime created;
+    private LocalDateTime created; // ⑥
 
-    public Block() {
-
+    public Block() { // ⑦
     }
 
-    public Block(String token) {
+    public Block(String token) { // ⑦
         this.token = token;
     }
 }

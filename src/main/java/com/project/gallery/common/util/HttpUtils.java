@@ -1,8 +1,8 @@
 package com.project.gallery.common.util;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
 
 public class HttpUtils {
 
@@ -12,7 +12,7 @@ public class HttpUtils {
     }
 
     // 세션 값 조회
-    public static Object getSession(HttpServletRequest req, String key) {
+    public static Object getSessionValue(HttpServletRequest req, String key) {
         return req.getSession().getAttribute(key);
     }
 
@@ -22,7 +22,7 @@ public class HttpUtils {
     }
 
     // 쿠키 입력
-    public static void setCookie(HttpServletResponse response, String name, String value, int expSeconds) {
+    public static void setCookie(HttpServletResponse res, String name, String value, int expSeconds) {
         Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
@@ -30,12 +30,14 @@ public class HttpUtils {
         if (expSeconds > 0) {
             cookie.setMaxAge(expSeconds);
         }
-        response.addCookie(cookie);
+
+        res.addCookie(cookie);
     }
 
     // 쿠키 값 조회
-    public static String getCookieValue(HttpServletRequest request, String name) {
-        Cookie[] cookies = request.getCookies();
+    public static String getCookieValue(HttpServletRequest req, String name) {
+        Cookie[] cookies = req.getCookies();
+
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals(name)) {
@@ -43,23 +45,26 @@ public class HttpUtils {
                 }
             }
         }
+
         return null;
     }
 
     // 쿠키 삭제
-    public static void removeCookie(HttpServletResponse response, String name) {
+    public static void removeCookie(HttpServletResponse res, String name) {
         Cookie cookie = new Cookie(name, null);
         cookie.setPath("/");
         cookie.setMaxAge(0);
-        response.addCookie(cookie);
+        res.addCookie(cookie);
     }
 
     // 토큰 조회
-    public static String getBearerToken(HttpServletRequest request) {
-        String authorization = request.getHeader("Authorization");
+    public static String getBearerToken(HttpServletRequest req) {
+        String authorization = req.getHeader("Authorization");
+
         if (authorization != null) {
             return authorization.replace("Bearer ", "").trim(); // Bearer 값 조회
         }
+
         return null;
     }
 }

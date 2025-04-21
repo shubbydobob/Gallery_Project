@@ -8,16 +8,16 @@ import com.project.gallery.order.dto.OrderRead;
 import com.project.gallery.order.dto.OrderRequest;
 import com.project.gallery.order.entity.Order;
 import com.project.gallery.order.entity.OrderItem;
-import com.project.gallery.order.repository.OrderItemRepository;
 import com.project.gallery.order.repository.OrderRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,10 +30,10 @@ public class BaseOrderService implements OrderService {
 
     // 주문 목록 조회
     @Override
-    public List<OrderRead> findAll(Integer memberId) {
+    public Page<OrderRead> findAll(Integer memberId, Pageable pageable) {
 
-        //결괏값을 DTO로 변환 후 리턴
-        return orderRepository.findAllByMemberIdOrderByIdDesc(memberId).stream().map(Order::toRead).toList();
+        Page<Order> orders = orderRepository.findAllByMemberIdOrderByIdDesc(memberId, pageable);
+        return orders.map(Order::toRead);
     }
 
     // 주문 상세 조회
@@ -41,8 +41,7 @@ public class BaseOrderService implements OrderService {
     public OrderRead find(Integer id, Integer memberId) {
         Optional<Order> orderOptional = orderRepository.findByIdAndMemberId(id, memberId);
 
-        if(orderOptional.isPresent()) {
-
+        if (orderOptional.isPresent()) {
             // 주문 조회 DTO로 변환
             OrderRead order = orderOptional.get().toRead();
 
@@ -60,16 +59,16 @@ public class BaseOrderService implements OrderService {
 
             return order;
         }
+
         return null;
     }
 
     // 주문 내용 저장
     @Override
     @Transactional
-    public void order(OrderRequest orderRequest, Integer memberId) {
-
+    public void order(OrderRequest orderReq, Integer memberId) { // ②
         // 주문 상품의 최종 결제 금액을 계산
-        List<ItemRead> items = itemService.findAll(orderRequest.getItemIds());
+        List<ItemRead> items = itemService.findAll(orderReq.getItemIds());
         long amount = 0L;
 
         for (ItemRead item : items) {
@@ -77,28 +76,28 @@ public class BaseOrderService implements OrderService {
         }
 
         // 주문 요청에 최종 결제 금액 입력
-        orderRequest.setAmount(amount);
-        
+        orderReq.setAmount(amount);
+
         // 결제 수단이 카드일 때 카드 번호 암호화
-        if ("card".equals(orderRequest.getPayment())) {
-            orderRequest.setCardNumber(EncryptionUtils.encrypt(orderRequest.getCardNumber()));
+        if ("card".equals(orderReq.getPayment())) {
+            orderReq.setCardNumber(EncryptionUtils.encrypt(orderReq.getCardNumber()));
         }
-        
-        // 주문 저정
-        Order order = orderRepository.save(orderRequest.toEntity(memberId));
-        
+
+        // 주문 저장
+        Order order = orderRepository.save(orderReq.toEntity(memberId));
+
         // 주문 상품 데이터 생성
         List<OrderItem> newOrderItems = new ArrayList<>();
-        
+
         // 상품 아이디만큼 주문 상품 추가
-        orderRequest.getItemIds().forEach((itemId) -> {
+        orderReq.getItemIds().forEach((itemId) -> {
             OrderItem newOrderItem = new OrderItem(order.getId(), itemId);
             newOrderItems.add(newOrderItem);
         });
-        
+
         // 주문 상품 데이터 저장
         orderItemService.saveAll(newOrderItems);
-        
+
         // 장바구니 데이터 삭제(특정 회원)
         cartService.removeAll(order.getMemberId());
     }

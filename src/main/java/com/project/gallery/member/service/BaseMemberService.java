@@ -1,12 +1,13 @@
 package com.project.gallery.member.service;
 
-import com.project.gallery.common.util.HashUtils;
 import com.project.gallery.member.entity.Member;
 import com.project.gallery.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+
+import com.project.gallery.common.util.HashUtils; // ①
 
 @Service
 @RequiredArgsConstructor
@@ -16,7 +17,7 @@ public class BaseMemberService implements MemberService {
 
     // 회원 데이터 저장
     @Override
-    public void save(String name, String loginId, String loginPw) {
+    public void save(String name, String loginId, String loginPw) { // ②
         // 솔트 생성
         String loginPwSalt = HashUtils.generateSalt(16);
 
@@ -29,8 +30,9 @@ public class BaseMemberService implements MemberService {
 
     // 회원 데이터 조회
     @Override
-    public Member find(String loginId, String loginPw) {
-       Optional<Member> memberOptional = memberRepository.findByLoginId(loginId);
+    public Member find(String loginId, String loginPw) { // ③
+        // 로그인 아이디로 회원 조회
+        Optional<Member> memberOptional = memberRepository.findByLoginId(loginId);
 
         // 회원 데이터가 있으면
         if (memberOptional.isPresent()) {
@@ -42,16 +44,17 @@ public class BaseMemberService implements MemberService {
             // 입력 패스워드에 솔트를 적용
             String loginPwSalted = HashUtils.generateHash(loginPw, loginPwSalt);
 
+            // 저장된 회원 로그인 패스워드와 일치한다면
             if (member.getLoginPw().equals(loginPwSalted)) {
                 return member;
             }
         }
 
-       return null;
+        return null;
     }
-
     @Override
     public Member find(String loginId) {
+        // 회원 데이터가 있으면 해당 값 리턴
         return memberRepository.findByLoginId(loginId).orElse(null);
     }
 }

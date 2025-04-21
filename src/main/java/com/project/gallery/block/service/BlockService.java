@@ -2,11 +2,11 @@ package com.project.gallery.block.service;
 
 public interface BlockService {
 
-    // 블록된 토큰 저장
-    void add(String token);
+    // 토큰 차단 데이터 삽입
+    void add(String token); // ①
 
-    // 블록된 토큰 조회
-    boolean has(String token);
+    // 토큰 차단 데이터가 있는지 확인
+    boolean has(String token); // ②
 
 
 }
