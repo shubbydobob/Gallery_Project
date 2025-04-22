@@ -19,13 +19,13 @@ public class Item {
     @Column(length = 50, nullable = false)
     private String name;
 
-    @Column(name = "img_path", length = 100, nullable = false)
+    @Column(length = 100, nullable = false)
     private String imgPath;
 
     @Column(nullable = false)
     private Integer price;
 
-    @Column(name = "discount_per", nullable = false)
+    @Column(nullable = false)
     private Integer discountPer;
 
     @Column(nullable = false, updatable = false)
