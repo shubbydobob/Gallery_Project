@@ -2,6 +2,8 @@
 import {getItems} from "@/services/itemService.js";
 import {reactive} from "vue";
 import Card from "@/components/Card.vue";
+import Upload from "@/components/Upload.vue";
+
 
 // 반응형 상태
 const state = reactive({
@@ -23,6 +25,9 @@ const state = reactive({
   <div class="home">
     <div class="album py-5 bg-light">
       <div class="container">
+        <div class="row row-cols-1 row-cols-lg-2 row-cols-xl-3 g-3">
+          <Upload />
+        </div>
         <div class="row row-cols-1 row-cols-lg-2 row-cols-xl-3 g-3">
           <div class="col" v-for="item in state.items">
             <Card :item="item"/>
